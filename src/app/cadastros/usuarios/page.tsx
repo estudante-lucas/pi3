@@ -1,14 +1,14 @@
 "use client";
 
-import KanbanBoard from "@/components/KanbanBoard";
 import MainLayout from "@/components/MainLayout";
+import UsersList from "@/components/usuario/UsersList";
 
-export default function KanbanBoardPage() {
+export default function UsersListPage() {
 	return (
-		<MainLayout selected="dashboard">
+		<MainLayout selected="usuarios">
 			<header>{/* ... */}</header>
 			<main>
-				<KanbanBoard />
+				<UsersList />
 			</main>
 			<footer>{/* ... */}</footer>
 		</MainLayout>

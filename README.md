@@ -1,30 +1,58 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# ProManage
+O ProManage é uma solução poderosa de gestão do tempo dos consultores, projetada para facilitar o controle e a organização das atividades diárias. Com essa ferramenta, os consultores podem registrar e acompanhar de forma simples e eficiente as tarefas realizadas, além de gerenciar o tempo dedicado a cada uma delas. Essa abordagem possibilita a extração de relatórios e indicadores detalhados, fornecendo informações valiosas aos líderes para avaliar a aderência dos projetos.
 
-## Getting Started
+## Pré-requisitos
+Antes de iniciar, certifique-se de ter o seguinte instalado em sua máquina:
 
-First, run the development server:
+-   Node.js: [https://nodejs.org](https://nodejs.org)
+-   Yarn: [https://yarnpkg.com](https://yarnpkg.com)
+-   MySQL: [https://www.mysql.com](https://www.mysql.com)
 
-```bash
-yarn dev
+## Configuração do Banco de Dados
+1. Crie um banco de dados no MySQL para o seu sistema.
+
+2. Renomeie o arquivo `.env.example` para `.env` no diretório raiz do projeto.
+
+3. Abra o arquivo `.env` e atualize as seguintes variáveis de ambiente com as configurações do seu banco de dados:
+
+```
+DB_HOST=localhost
+DB_USER=seu_usuario
+DB_PASSWORD=sua_senha
+DB_NAME=nome_do_banco_de_dados
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Certifique-se de fornecer o nome de usuário, senha e nome do banco de dados corretos.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Instalação
+1. Clone este repositório:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```shell
+git clone https://github.com/estudante-lucas/pi3.git
+```
 
-## Learn More
+Navegue até o diretório raiz do projeto:
 
-To learn more about Next.js, take a look at the following resources:
+```shell
+cd pi3
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Instale as dependências do projeto usando o Yarn:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```shell
+yarn install
+```
 
-## Deploy on Vercel
+## Executando o Sistema
+Após concluir as etapas de configuração e instalação, você pode executar o sistema usando o seguinte comando:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```shell
+yarn dev
+```
+Isso iniciará o sistema e estará pronto para ser acessado em http://localhost:3000.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Contribuição
+Se você quiser contribuir para este projeto, fique à vontade para enviar pull requests ou relatar problemas na seção de issues.
+
+## Licença
+Este projeto está licenciado sob a Licença Academic Free License ("AFL") v. 3.0. Consulte o arquivo LICENSE para obter mais informações.
