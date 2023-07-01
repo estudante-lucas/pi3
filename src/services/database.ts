@@ -1,8 +1,8 @@
-import * as fs from "fs";
-import * as path from "path";
-import { Sequelize } from "sequelize";
-
+// pi3/src/services/database.ts
 import dotenv from "dotenv";
+import fs from "fs/promises";
+import path from "path";
+import { Sequelize } from "sequelize";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -15,10 +15,12 @@ const dbConfig = {
 	database: process.env.DB_NAME,
 };
 
-if (dbConfig.database || dbConfig.user) throw new Error("Configure as variáveis de ambiente corretamente. Veja no arquivo README.md!");
+if (!dbConfig.database || !dbConfig.user) {
+	throw new Error("Configure as variáveis de ambiente corretamente. Veja no arquivo README.md!");
+}
 
 // Cria uma instância do Sequelize
-const sequelize = new Sequelize(dbConfig.database!, dbConfig.user!, dbConfig.password, {
+const sequelize = new Sequelize(dbConfig.database, dbConfig.user, dbConfig.password, {
 	host: dbConfig.host,
 	dialect: "mysql",
 });
@@ -26,10 +28,10 @@ const sequelize = new Sequelize(dbConfig.database!, dbConfig.user!, dbConfig.pas
 const runMigrations = async (): Promise<void> => {
 	try {
 		// Define o diretório onde as migrations estão localizadas
-		const migrationsDir = path.join(__dirname, "caminho/para/as/migrations");
+		const migrationsDir = path.join(__dirname, "../resources/migrations");
 
 		// Obtém a lista de arquivos no diretório de migrations
-		const migrationFiles = await fs.promises.readdir(migrationsDir);
+		const migrationFiles = await fs.readdir(migrationsDir);
 
 		// Executa as migrations
 		for (const file of migrationFiles) {
@@ -58,4 +60,4 @@ const testConnection = async (): Promise<void> => {
 testConnection();
 runMigrations();
 
-export default sequelize;
+export { runMigrations, sequelize };
