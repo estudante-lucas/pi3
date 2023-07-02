@@ -1,4 +1,5 @@
 import { DataTypes, Model } from "sequelize";
+import Usuario from "./Usuario";
 import { sequelize } from "./index";
 
 class Quadro extends Model {
@@ -35,7 +36,7 @@ Quadro.init(
 			type: DataTypes.INTEGER,
 			allowNull: true,
 			references: {
-				model: "usuarios",
+				model: Usuario,
 				key: "id",
 			},
 		},
@@ -43,7 +44,7 @@ Quadro.init(
 			type: DataTypes.INTEGER,
 			allowNull: true,
 			references: {
-				model: "usuarios",
+				model: Usuario,
 				key: "id",
 			},
 		},
@@ -60,5 +61,8 @@ Quadro.init(
 		underscored: true,
 	}
 );
+
+Quadro.belongsTo(Usuario, { as: "atualizador", foreignKey: "atualizadoPor" });
+Quadro.belongsTo(Usuario, { as: "criador", foreignKey: "criadoPor" });
 
 export default Quadro;
