@@ -1,4 +1,5 @@
 import { SaveOutlined } from "@ant-design/icons";
+import Quadro from "@models/Quadro";
 import { Button, Form, Input, message } from "antd";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -7,33 +8,33 @@ const BoardRegistration: React.FC = () => {
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
 
-	const handleSave = async (values: any) => {
+	const handleSave = async (values: Pick<Quadro, "nome">) => {
 		setIsLoading(true);
+		await saveBoard(values);
+	};
 
+	const saveBoard = async (quadro: Pick<Quadro, "nome">) => {
 		try {
-			// Simular uma requisição assíncrona de salvamento
-			await saveBoard(values);
+			const response = await fetch("/api/cadastros/quadro", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(quadro),
+			});
 
-			message.success("Quadro salvo com sucesso!");
-			router.push("/cadastros/quadros");
-		} catch (error) {
-			message.error("Erro ao salvar o quadro. Tente novamente mais tarde.");
+			if (!response.ok) {
+				const body = await response.json();
+				throw new Error(body.message);
+			}
+			message.success("Quadro cadastrado com sucesso!");
+			setTimeout(() => router.push("/cadastros/quadros"), 3000);
+		} catch (error: any) {
+			message.error("Ocorreu um erro! Tente novamente mais tarde");
+			console.error(error.message);
 		} finally {
 			setIsLoading(false);
 		}
-	};
-
-	const saveBoard = (boardData: any) => {
-		// Implemente aqui a lógica para salvar o quadro
-		return new Promise<void>((resolve, reject) => {
-			// Simulação de uma requisição assíncrona
-			setTimeout(() => {
-				// Em caso de sucesso, resolva a Promise
-				resolve();
-				// Em caso de erro, rejeite a Promise
-				// reject(new Error("Erro ao salvar o quadro."));
-			}, 2000);
-		});
 	};
 
 	return (
@@ -41,7 +42,7 @@ const BoardRegistration: React.FC = () => {
 			<h1>Novo Quadro</h1>
 
 			<Form onFinish={handleSave}>
-				<Form.Item label="Nome do Quadro" name="name" rules={[{ required: true, message: "Informe o nome do quadro" }]}>
+				<Form.Item label="Nome do Quadro" name="nome" rules={[{ required: true, message: "Informe o nome do quadro" }]}>
 					<Input placeholder="Digite o nome do quadro" />
 				</Form.Item>
 

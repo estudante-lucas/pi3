@@ -20,6 +20,7 @@ DB_HOST=localhost
 DB_USER=seu_usuario
 DB_PASSWORD=sua_senha
 DB_NAME=nome_do_banco_de_dados
+DB_DIALECT=mysql
 ```
 
 Certifique-se de fornecer o nome de usuário, senha e nome do banco de dados corretos.

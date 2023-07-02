@@ -1,25 +1,31 @@
-import { Button, Table } from "antd";
+import { Button, Col, Row, Skeleton, Table } from "antd";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const UsersList: React.FC = () => {
 	const router = useRouter();
+
+	const [loading, setLoading] = useState(false);
+	const [users, setUsers] = useState<User[]>([]);
+
+	useEffect(() => {
+		setLoading(true);
+		fetch("/api/cadastros/usuarios")
+			.then((response) => response.json())
+			.then((data) => setUsers(data))
+			.catch((error) => console.error("Erro ao obter lista de usuários:", error))
+			.finally(() => setLoading(false));
+	}, []);
 
 	const onRow = (user: User) => {
 		router.push(`/cadastros/usuario/${user.id}`);
 	};
 
-	const users: User[] = [
-		{ id: 1, name: "John Doe", email: "john@example.com" },
-		{ id: 2, name: "Jane Smith", email: "jane@example.com" },
-		{ id: 3, name: "Bob Johnson", email: "bob@example.com" },
-	];
-
 	const columns = [
 		{
-			title: "Name",
-			dataIndex: "name",
-			key: "name",
+			title: "Nome",
+			dataIndex: "nome",
+			key: "nome",
 		},
 		{
 			title: "Email",
@@ -27,6 +33,27 @@ const UsersList: React.FC = () => {
 			key: "email",
 		},
 	];
+
+	const CustomSkeleton = () => (
+		<Row gutter={64}>
+			<Col span={12}>
+				<Skeleton paragraph={false} active />
+			</Col>
+			<Col span={10}>
+				<Skeleton paragraph={false} active />
+			</Col>
+		</Row>
+	);
+
+	const multipleSkeleton = () => {
+		return (
+			<>
+				<CustomSkeleton />
+				<CustomSkeleton />
+				<CustomSkeleton />
+			</>
+		);
+	};
 
 	return (
 		<>
@@ -42,7 +69,15 @@ const UsersList: React.FC = () => {
 					Adicionar
 				</Button>
 			</div>
-			<Table dataSource={users} columns={columns} rowKey="id" onRow={(record) => ({ onClick: () => onRow(record) })} />
+			<Table
+				dataSource={users}
+				columns={columns}
+				rowKey="id"
+				onRow={(record) => ({ onClick: () => onRow(record) })}
+				locale={{
+					emptyText: loading ? multipleSkeleton() : "Usuários cadastrados aparecerão aqui",
+				}}
+			/>
 		</>
 	);
 };

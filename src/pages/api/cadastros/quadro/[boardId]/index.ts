@@ -1,42 +1,20 @@
+import { obterQuadro } from "@/services/QuadroService";
 import { NextApiRequest, NextApiResponse } from "next";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-	const { boardId: rawBoardId } = req.query;
-	const boardId: number = Number(rawBoardId);
+export default async function obterQuadroHandler(req: NextApiRequest, res: NextApiResponse) {
+	try {
+		const { boardId: rawUserId } = req.query;
+		const boardId: number = Number(rawUserId);
 
-	const boards: Board[] = [
-		{
-			id: 1,
-			name: "Quadro 1",
-			columns: [
-				{
-					id: 1,
-					title: "A fazer",
-					board: 1,
-					position: 0,
-					tasks: [],
-				},
-				{
-					id: 2,
-					title: "Em andamento",
-					board: 1,
-					position: 1,
-					tasks: [],
-				},
-				{
-					id: 3,
-					title: "Concluido",
-					board: 1,
-					position: 2,
-					tasks: [],
-				},
-			],
-		},
-		{ id: 2, name: "Quadro 2", columns: [] },
-		{ id: 3, name: "Quadro 3", columns: [] },
-	];
+		const quadro = await obterQuadro(boardId);
 
-	const board = boards.find((board) => board.id === boardId);
+		if (!quadro) {
+			return res.status(404).json({ error: "Quadro não encontrado" });
+		}
 
-	res.status(200).json(board);
+		res.status(200).json(quadro);
+	} catch (error) {
+		console.error("Erro ao obter quadro:", error);
+		res.status(500).json({ error: "Erro ao obter quadro" });
+	}
 }

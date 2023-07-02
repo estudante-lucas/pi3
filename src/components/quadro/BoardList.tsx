@@ -1,4 +1,4 @@
-import { Button, Col, Input, Row, Table, message } from "antd";
+import { Button, Col, Input, Row, Skeleton, Table, message } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { ExpandableConfig, GetRowKey } from "antd/es/table/interface";
 import { useRouter } from "next/navigation";
@@ -38,60 +38,18 @@ const BoardList: React.FC = () => {
 	};
 
 	useEffect(() => {
-		// Simulação de uma requisição assíncrona para buscar a lista de quadros
-		fetchBoardList()
-			.then((data) => {
-				setBoardList(data);
-			})
-			.catch((error) => {
-				message.error("Erro ao buscar a lista de quadros. Tente novamente mais tarde.");
-			})
-			.finally(() => {
-				setIsBoardListLoading(false);
-			});
+		fetch("/api/cadastros/quadros")
+			.then((response) => response.json())
+			.then((data) => setBoardList(data))
+			.catch((error) => console.error("Erro ao obter lista de usuários:", error))
+			.finally(() => setIsBoardListLoading(false));
 	}, []);
-
-	const fetchBoardList = () => {
-		setIsBoardListLoading(true);
-		return new Promise<Board[]>((resolve, reject) => {
-			// Simulação de uma requisição assíncrona
-			setTimeout(() => {
-				// Em caso de sucesso, resolva a Promise com os dados
-				resolve([
-					{
-						id: 1,
-						name: "Quadro 1",
-						columns: [
-							{
-								id: 9999,
-								title: "Em Andamento",
-								board: 1,
-								position: 0,
-								tasks: [],
-							},
-							{
-								id: 1111,
-								title: "PullRequest",
-								board: 1,
-								position: 1,
-								tasks: [],
-							},
-						],
-					},
-					{ id: 2, name: "Quadro 2", columns: [] },
-					{ id: 3, name: "Quadro 3", columns: [] },
-				]);
-				// Em caso de erro, rejeite a Promise
-				// reject(new Error("Erro ao buscar a lista de quadros."));
-			}, 2000);
-		});
-	};
 
 	const columns: ColumnsType<Board> = [
 		{
 			title: "Nome",
-			dataIndex: "name",
-			key: "name",
+			dataIndex: "nome",
+			key: "nome",
 		},
 		{
 			title: "Ações",
@@ -238,6 +196,27 @@ const BoardList: React.FC = () => {
 		}
 	};
 
+	const CustomSkeleton = () => (
+		<Row gutter={64}>
+			<Col span={20}>
+				<Skeleton paragraph={false} active />
+			</Col>
+			<Col span={4}>
+				<Skeleton paragraph={false} active />
+			</Col>
+		</Row>
+	);
+
+	const multipleSkeleton = () => {
+		return (
+			<>
+				<CustomSkeleton />
+				<CustomSkeleton />
+				<CustomSkeleton />
+			</>
+		);
+	};
+
 	const rowKeyBoard: GetRowKey<Board> = (record) => "board-" + record.id;
 
 	return (
@@ -264,7 +243,7 @@ const BoardList: React.FC = () => {
 					hideOnSinglePage: true,
 				}}
 				locale={{
-					emptyText: "Os quadros adicionados serão exibidos aqui!",
+					emptyText: isBoardListLoading ? multipleSkeleton() : "Os quadros adicionados serão exibidos aqui!",
 				}}
 			/>
 		</div>
