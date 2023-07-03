@@ -25,7 +25,7 @@ module.exports = {
           key: 'id'
         }
       },
-      lista: {
+      coluna: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -95,12 +95,12 @@ module.exports = {
 
     await queryInterface.addConstraint('projetos', {
       type: 'foreign key',
-      fields: ['lista'],
+      fields: ['coluna'],
       references: {
         table: 'colunas',
         field: 'id'
       },
-      name: 'projeto_lista_fk_lista_id'
+      name: 'projeto_coluna_fk_coluna_id'
     });
   },
 

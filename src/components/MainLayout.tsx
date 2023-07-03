@@ -10,7 +10,7 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children, selected }) => {
 	return (
-		<Layout style={{ minHeight: "100vh", position: "fixed", top: 0, bottom: 0, left: 0, right: 0 }}>
+		<Layout style={{ position: "fixed", top: 0, bottom: 0, left: 0, right: 0 }}>
 			<SideMenu selected={selected} />
 			<Layout>
 				<Layout.Content style={{ margin: "16px" }}>{children}</Layout.Content>

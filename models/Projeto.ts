@@ -1,13 +1,14 @@
 import { DataTypes, Model } from "sequelize";
-import Quadro from "./Quadro";
+import Coluna from "./Coluna";
 import Usuario from "./Usuario";
 import { sequelize } from "./index";
 
-class Coluna extends Model {
+class Projeto extends Model {
 	public id!: number;
 	public nome!: string;
-	public quadro!: number;
-	public posicao!: number;
+	public descricao?: string;
+	public responsavel?: number;
+	public coluna!: number;
 	public criadoEm!: Date;
 	public atualizadoEm?: Date;
 	public criadoPor!: number;
@@ -15,7 +16,7 @@ class Coluna extends Model {
 	public apagadoEm?: Date;
 }
 
-Coluna.init(
+Projeto.init(
 	{
 		id: {
 			type: DataTypes.INTEGER,
@@ -27,17 +28,25 @@ Coluna.init(
 			type: DataTypes.STRING(100),
 			allowNull: false,
 		},
-		quadro: {
+		descricao: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+		},
+		responsavel: {
 			type: DataTypes.INTEGER,
-			allowNull: false,
+			allowNull: true,
 			references: {
-				model: Quadro,
+				model: Usuario,
 				key: "id",
 			},
 		},
-		posicao: {
+		coluna: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
+			references: {
+				model: Coluna,
+				key: "id",
+			},
 		},
 		criadoEm: {
 			type: DataTypes.DATE,
@@ -70,17 +79,18 @@ Coluna.init(
 	},
 	{
 		sequelize,
-		modelName: "Coluna",
-		tableName: "colunas",
+		modelName: "Projeto",
+		tableName: "projetos",
 		timestamps: false,
 		underscored: true,
 	}
 );
 
-Quadro.hasMany(Coluna, { foreignKey: "quadro" });
-Coluna.belongsTo(Quadro, { as: "quadroId", foreignKey: "quadro" });
+Coluna.hasMany(Projeto, { foreignKey: "coluna" });
+Projeto.belongsTo(Coluna, { as: "colunaId", foreignKey: "coluna" });
 
-Coluna.belongsTo(Usuario, { as: "atualizador", foreignKey: "atualizadoPor" });
-Coluna.belongsTo(Usuario, { as: "criador", foreignKey: "criadoPor" });
+Projeto.belongsTo(Usuario, { foreignKey: "responsavel" });
+Projeto.belongsTo(Usuario, { as: "atualizador", foreignKey: "atualizadoPor" });
+Projeto.belongsTo(Usuario, { as: "criador", foreignKey: "criadoPor" });
 
-export default Coluna;
+export default Projeto;

@@ -1,12 +1,18 @@
 import Coluna from "@models/Coluna";
+import Projeto from "@models/Projeto";
 import Quadro from "@models/Quadro";
+import Usuario from "@models/Usuario";
 import { Button, Card, Col, Dropdown, MenuProps, Row, Space, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
+
+interface ProjetoDTO extends Partial<Projeto> {
+	Usuario?: Partial<Usuario>;
+}
 
 interface ColunaDTO extends Partial<Coluna> {
-	Projetos?: any[];
+	Projetos?: ProjetoDTO[];
 }
 
 interface QuadroDTO extends Partial<Quadro> {
@@ -61,7 +67,6 @@ const KanbanBoard: React.FC = () => {
 				id: projetoId,
 				nome: "Título da tarefa",
 				description: "Descrição da tarefa",
-				responsavel: "Lucas",
 			};
 			return quadroSelecionado!.Colunas.map((coluna) => {
 				if (coluna.id === destinationColuna.id) {
@@ -91,39 +96,38 @@ const KanbanBoard: React.FC = () => {
 		};
 	});
 
-	const newLocal = quadroSelecionado?.Colunas.map((coluna, _, array) => (
+	const colunasDoQuadro = quadroSelecionado?.Colunas.map((coluna, _, array) => (
 		<Col key={coluna.id} span={array.length < 5 ? 24 / array.length : 5}>
 			<Card
 				title={<Title level={4}>{coluna.nome}</Title>}
-				style={{ marginBottom: "16px" }}
-				headStyle={{ backgroundColor: "#f4f4f4" }}
-				bodyStyle={{ minHeight: "100px", padding: "8px" }}
+				style={{ marginBottom: "16px", height: "88vh" }}
+				headStyle={{ backgroundColor: "#e4e4e4" }}
+				bodyStyle={{ minHeight: "79vh", padding: "8px", backgroundColor: "#e4e4e4" }}
 				onDragOver={handleDragOver}
 				onDrop={(e) => handleDrop(e, coluna.id!)}
 			>
 				{coluna.Projetos?.map((projeto) => (
 					<Card
+						title={projeto.nome}
 						key={projeto.id}
 						draggable
-						onDragStart={(e) => handleDragStart(e, projeto.id)}
+						onDragStart={(e) => handleDragStart(e, projeto.id!)}
 						style={{
 							marginBottom: "8px",
-							backgroundColor: "#b2b2b2",
+							backgroundColor: "#c4c4c4",
 						}}
 					>
-						<Title level={3}>{projeto.nome}</Title>
-						<p>{projeto.description}</p>
-						<p style={{ fontSize: "12px" }}>{projeto.responsavel}</p>
+						<Text>{"Responsável: " + (projeto.Usuario?.nome || "Não atribuído")}</Text>
 					</Card>
 				))}
 			</Card>
 		</Col>
 	));
 
-	const newLocal_1 = quadroSelecionado ? <Col>As colunas adicionadas ao quadro irão aparecer aqui</Col> : "";
+	const quadroVazio = quadroSelecionado ? <Col>As colunas adicionadas ao quadro irão aparecer aqui</Col> : "";
 
 	return (
-		<>
+		<Space direction="vertical" style={{ width: "100%" }}>
 			<Row>
 				<Dropdown menu={{ items, onClick, selectable: true }}>
 					<Button>
@@ -131,10 +135,10 @@ const KanbanBoard: React.FC = () => {
 					</Button>
 				</Dropdown>
 			</Row>
-			<Row gutter={16} wrap={false} style={{ overflow: "scroll", minHeight: "100vh" }}>
-				{newLocal?.length == 0 ? newLocal_1 : newLocal}
+			<Row gutter={16} wrap={false} style={{ overflow: "scroll" }}>
+				{colunasDoQuadro?.length == 0 ? quadroVazio : colunasDoQuadro}
 			</Row>
-		</>
+		</Space>
 	);
 };
 
