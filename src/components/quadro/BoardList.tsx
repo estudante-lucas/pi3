@@ -1,51 +1,56 @@
+import Coluna from "@models/Coluna";
+import Quadro from "@models/Quadro";
 import { Button, Col, Input, Row, Skeleton, Table, message } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { ExpandableConfig, GetRowKey } from "antd/es/table/interface";
 import { useRouter } from "next/navigation";
 import React, { Key, useEffect, useState } from "react";
 
-const BoardList: React.FC = () => {
+interface QuadroDTO extends Partial<Quadro> {
+	Colunas: Coluna[];
+}
+
+const QuadroList: React.FC = () => {
 	const router = useRouter();
 
-	const [isBoardListLoading, setIsBoardListLoading] = useState(false);
+	const [isQuadroListLoading, setIsQuadroListLoading] = useState(false);
 	const [isRegisterColumnLoading, setIsRegisterColumnLoading] = useState(false);
 	const [isAddButtonDisabled, setIsAddButtonDisabled] = useState(false);
 	const [rowsExpanded, setRowExpanded] = useState<readonly Key[]>([]);
 
-	const [boardList, setBoardList] = useState<Board[]>([]);
-	const [newColumn, setNewColumn] = useState<Column | null>(null);
+	const [boardList, setQuadroList] = useState<QuadroDTO[]>([]);
+	const [novaColuna, setNewColumn] = useState<Partial<Coluna> | null>(null);
 
-	const onAdicionarColunaButton = (board: Board, e: React.MouseEvent<HTMLAnchorElement, MouseEvent> | React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+	const onAdicionarColunaButton = (quadro: any, e: React.MouseEvent<HTMLAnchorElement, MouseEvent> | React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
 		e.stopPropagation();
 
-		if (board.columns == null) {
-			board.columns = [];
+		if (quadro.Colunas == null) {
+			quadro.Colunas = [];
 		}
 
-		const column = {
-			title: "",
-			board: board.id!,
-			position: board.columns.length,
-			tasks: [],
+		const coluna = {
+			nome: "",
+			quadro: quadro.id!,
+			posicao: quadro.Colunas.length,
 		};
 
-		board.columns.push(column);
-		setNewColumn(column);
+		quadro.Colunas.push(coluna);
+		setNewColumn(coluna);
 
 		setIsAddButtonDisabled(true);
 
-		setRowExpanded([rowKeyBoard(board)]);
+		setRowExpanded([rowKeyQuadro(quadro)]);
 	};
 
 	useEffect(() => {
 		fetch("/api/cadastros/quadros")
 			.then((response) => response.json())
-			.then((data) => setBoardList(data))
+			.then((data) => setQuadroList(data))
 			.catch((error) => console.error("Erro ao obter lista de usuários:", error))
-			.finally(() => setIsBoardListLoading(false));
+			.finally(() => setIsQuadroListLoading(false));
 	}, []);
 
-	const columns: ColumnsType<Board> = [
+	const colunas: ColumnsType<QuadroDTO> = [
 		{
 			title: "Nome",
 			dataIndex: "nome",
@@ -55,9 +60,9 @@ const BoardList: React.FC = () => {
 			title: "Ações",
 			key: "actions",
 			align: "right",
-			render: (_: string, board: Board) => {
+			render: (_: string, quadro: QuadroDTO) => {
 				return (
-					<Button disabled={isAddButtonDisabled} type="primary" onClick={(e) => onAdicionarColunaButton(board, e)}>
+					<Button disabled={isAddButtonDisabled} type="primary" onClick={(e) => onAdicionarColunaButton(quadro, e)}>
 						Adicionar Coluna
 					</Button>
 				);
@@ -65,24 +70,24 @@ const BoardList: React.FC = () => {
 		},
 	];
 
-	const expandableConfig: ExpandableConfig<Board> = {
+	const expandableConfig: ExpandableConfig<QuadroDTO> = {
 		expandedRowKeys: rowsExpanded,
 		showExpandColumn: false,
-		expandRowByClick: !newColumn,
+		expandRowByClick: !novaColuna,
 		onExpandedRowsChange: (key) => setRowExpanded(key),
 		expandedRowRender: (record) => {
-			const rowKeyColumn: GetRowKey<Column> = (record) => "column-" + record.id;
+			const rowKeyColumn: GetRowKey<Partial<Coluna>> = (record) => "column-" + record.id;
 			return (
 				<Table
 					columns={[
 						{
-							dataIndex: "title",
-							key: "title",
+							dataIndex: "nome",
+							key: "nome",
 							render: (text, record) => (!record.id ? NewColumnComponent() : text),
 						},
 					]}
 					rowKey={rowKeyColumn}
-					dataSource={[...record.columns]}
+					dataSource={[...record.Colunas]}
 					pagination={false}
 					locale={{
 						emptyText: "As colunas adicionadas serão exibidas aqui!",
@@ -98,10 +103,10 @@ const BoardList: React.FC = () => {
 		return (
 			<Row gutter={16}>
 				<Col span={12}>
-					<Input autoFocus disabled={isRegisterColumnLoading} value={newColumn?.title} onChange={handleNewColumnInputChange} onPressEnter={() => (newColumn?.title ? registerColumn() : null)} onKeyDown={handleInputKeyDown} />
+					<Input autoFocus disabled={isRegisterColumnLoading} value={novaColuna?.nome} onChange={handleNewColumnInputChange} onPressEnter={() => (novaColuna?.nome ? registerColumn() : null)} onKeyDown={handleInputKeyDown} />
 				</Col>
 				<Col>
-					<Button loading={isRegisterColumnLoading} disabled={!newColumn?.title} type="primary" onClick={registerColumn}>
+					<Button loading={isRegisterColumnLoading} disabled={!novaColuna?.nome} type="primary" onClick={registerColumn}>
 						Adicionar
 					</Button>
 				</Col>
@@ -118,7 +123,7 @@ const BoardList: React.FC = () => {
 		const { value } = e.target;
 		setNewColumn((prev) => {
 			if (prev) {
-				return { ...prev, title: value };
+				return { ...prev, nome: value };
 			}
 			return null;
 		});
@@ -131,20 +136,20 @@ const BoardList: React.FC = () => {
 	};
 
 	const handleCancelAddColumn = () => {
-		const boardId = Number(newColumn?.board);
+		const quadroId = Number(novaColuna?.quadro);
 
-		setBoardList((prev) => {
-			const updatedBoardList = prev.map((board) => {
-				if (board.id === boardId) {
-					const updatedColumns = [...board.columns];
+		setQuadroList((prev) => {
+			const updatedQuadroList = prev.map((quadro) => {
+				if (quadro.id === quadroId) {
+					const updatedColumns = [...quadro.Colunas];
 					updatedColumns.pop();
 					if (updatedColumns.length === 0) setRowExpanded([]);
-					return { ...board, columns: updatedColumns };
+					return { ...quadro, Colunas: updatedColumns };
 				}
-				return board;
+				return quadro;
 			});
 
-			return updatedBoardList;
+			return updatedQuadroList;
 		});
 		setNewColumn(null);
 		setIsAddButtonDisabled(false);
@@ -162,31 +167,31 @@ const BoardList: React.FC = () => {
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify(newColumn),
+				body: JSON.stringify(novaColuna),
 			});
 
 			if (!response.ok) {
 				throw new Error("Erro ao cadastrar coluna");
 			}
 
-			const data: Column = await response.json();
+			const data: Coluna = await response.json();
 			message.success("Coluna cadastrada com sucesso!");
 
 			setNewColumn(null);
 			setIsAddButtonDisabled(false);
 
-			setBoardList((prev) => {
-				const updatedBoardList = prev.map((board) => {
-					if (board.id === data.board) {
-						const updatedColumns = [...board.columns];
+			setQuadroList((prev) => {
+				const updatedQuadroList = prev.map((quadro) => {
+					if (quadro.id === data.quadro) {
+						const updatedColumns = [...quadro.Colunas];
 						updatedColumns.pop();
 						updatedColumns.push(data);
-						return { ...board, columns: updatedColumns };
+						return { ...quadro, Colunas: updatedColumns };
 					}
-					return board;
+					return quadro;
 				});
 
-				return updatedBoardList;
+				return updatedQuadroList;
 			});
 		} catch (error) {
 			message.error("Ocorreu um erro! Tente novamente mais tarde.");
@@ -217,7 +222,7 @@ const BoardList: React.FC = () => {
 		);
 	};
 
-	const rowKeyBoard: GetRowKey<Board> = (record) => "board-" + record.id;
+	const rowKeyQuadro: GetRowKey<QuadroDTO> = (record) => "board-" + record.id;
 
 	return (
 		<div>
@@ -234,20 +239,20 @@ const BoardList: React.FC = () => {
 				</Button>
 			</div>
 			<Table
-				loading={isBoardListLoading}
+				loading={isQuadroListLoading}
 				dataSource={boardList}
-				columns={columns}
-				rowKey={rowKeyBoard}
+				columns={colunas}
+				rowKey={rowKeyQuadro}
 				expandable={expandableConfig}
 				pagination={{
 					hideOnSinglePage: true,
 				}}
 				locale={{
-					emptyText: isBoardListLoading ? multipleSkeleton() : "Os quadros adicionados serão exibidos aqui!",
+					emptyText: isQuadroListLoading ? multipleSkeleton() : "Os quadros adicionados serão exibidos aqui!",
 				}}
 			/>
 		</div>
 	);
 };
 
-export default BoardList;
+export default QuadroList;

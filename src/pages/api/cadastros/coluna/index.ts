@@ -1,16 +1,19 @@
+import { criarColuna } from "@/services/ColunaService";
 import { NextApiRequest, NextApiResponse } from "next";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-	if (req.method === "POST") {
-		const column = req.body;
+export default async function criarColunaHandler(req: NextApiRequest, res: NextApiResponse) {
+	if (req.method !== "POST") {
+		return res.status(405).json({ message: "Method Not Allowed" });
+	}
 
-		//TODO
-		// Salvar coluna no banco de dados
-		// Retornar a coluna salva no banco com o id
-		column.id = 123;
+	try {
+		const { nome, quadro, posicao } = req.body;
+		const coluna = await criarColuna({ nome, quadro, posicao });
 
-		res.status(201).json(column);
-	} else {
-		res.status(404);
+		return res.status(201).json(coluna);
+	} catch (error: any) {
+		const message = error?.errors?.[0].message || error.message;
+		console.error("Erro ao cadastrar coluna:", message);
+		return res.status(500).json({ message });
 	}
 }

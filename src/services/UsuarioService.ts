@@ -1,4 +1,4 @@
-import Usuario from "@models/Usuario";
+import Usuario from "../../models/Usuario";
 
 const criarUsuario = async (dados: Partial<Usuario>): Promise<Usuario> => {
 	dados.criadoEm = new Date();

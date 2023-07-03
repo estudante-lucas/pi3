@@ -1,19 +1,20 @@
 import { DataTypes, Model } from "sequelize";
+import Usuario from "./Usuario";
 import { sequelize } from "./index";
 
-class Usuario extends Model {
+class Coluna extends Model {
 	public id!: number;
-	public email!: string;
-	public senha!: string;
 	public nome!: string;
+	public quadro!: number;
+	public posicao!: number;
 	public criadoEm!: Date;
 	public atualizadoEm?: Date;
-	public criadoPor?: number;
+	public criadoPor!: number;
 	public atualizadoPor?: number;
 	public apagadoEm?: Date;
 }
 
-Usuario.init(
+Coluna.init(
 	{
 		id: {
 			type: DataTypes.INTEGER,
@@ -21,17 +22,20 @@ Usuario.init(
 			autoIncrement: true,
 			primaryKey: true,
 		},
-		email: {
-			type: DataTypes.STRING(80),
-			allowNull: false,
-			unique: true,
-		},
-		senha: {
-			type: DataTypes.STRING(100),
-			allowNull: false,
-		},
 		nome: {
 			type: DataTypes.STRING(100),
+			allowNull: false,
+		},
+		quadro: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			references: {
+				model: Quadro,
+				key: "id",
+			},
+		},
+		posicao: {
+			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
 		criadoEm: {
@@ -65,11 +69,19 @@ Usuario.init(
 	},
 	{
 		sequelize,
-		modelName: "Usuario",
-		tableName: "usuarios",
+		modelName: "Coluna",
+		tableName: "colunas",
 		timestamps: false,
 		underscored: true,
 	}
 );
 
-export default Usuario;
+import Quadro from "./Quadro";
+
+Quadro.hasMany(Coluna, { foreignKey: "quadro" });
+Coluna.belongsTo(Quadro, { as: "quadroId", foreignKey: "quadro" });
+
+Coluna.belongsTo(Usuario, { as: "atualizador", foreignKey: "atualizadoPor" });
+Coluna.belongsTo(Usuario, { as: "criador", foreignKey: "criadoPor" });
+
+export default Coluna;

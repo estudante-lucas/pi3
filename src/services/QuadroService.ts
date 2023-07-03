@@ -1,7 +1,9 @@
-import Quadro from "@models/Quadro";
+import Coluna from "@models/Coluna";
+import Quadro from "../../models/Quadro";
 
 const criarQuadro = async (dados: Partial<Quadro>): Promise<Quadro> => {
 	dados.criadoEm = new Date();
+	dados.criadoPor = 1; //TODO Pegar do usuário autenticado na requisição
 	try {
 		return await Quadro.create(dados);
 	} catch (error) {
@@ -42,7 +44,7 @@ const excluirQuadro = async (id: number): Promise<void> => {
 
 const obterTodosQuadros = async (): Promise<Quadro[]> => {
 	try {
-		return await Quadro.findAll({ where: { apagadoEm: null } });
+		return await Quadro.findAll({ where: { apagadoEm: null }, include: Coluna });
 	} catch (error) {
 		console.error("Erro ao obter todos os quadros:", error);
 		throw new Error("Erro ao obter todos os quadros");
