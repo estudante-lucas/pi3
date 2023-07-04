@@ -3,7 +3,7 @@ import Chart, { ChartData, ChartOptions } from "chart.js/auto";
 import React, { useEffect, useRef } from "react";
 
 interface ChartComponentProps {
-	data: ChartData;
+	data?: ChartData;
 	options?: ChartOptions;
 	type?: ChartType;
 	width?: string;
@@ -16,7 +16,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ data, options, type = "
 	useEffect(() => {
 		if (chartRef.current) {
 			const ctx = chartRef.current.getContext("2d");
-			if (ctx) {
+			if (ctx && !!data) {
 				const chartInstance = new Chart(ctx, {
 					type,
 					data,

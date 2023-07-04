@@ -6,7 +6,7 @@ import { sequelize } from "./index";
 class ProjetoLog extends Model {
 	public id!: number;
 	public coluna!: string;
-	public projeto!: number;
+	public projetoId!: number;
 	public criadoPor!: number;
 	public criadoEm!: Date;
 }
@@ -23,7 +23,7 @@ ProjetoLog.init(
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		projeto: {
+		projetoId: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 			references: {
@@ -47,8 +47,12 @@ ProjetoLog.init(
 		timestamps: true,
 		createdAt: "criadoEm",
 		updatedAt: false,
-		underscored: true,
 	}
 );
+
+Usuario.hasMany(ProjetoLog, { as: "logsProjetos", foreignKey: "criadoPor" });
+
+ProjetoLog.belongsTo(Usuario, { as: "criador", foreignKey: "criadoPor" });
+ProjetoLog.belongsTo(Projeto, { foreignKey: "projetoId" });
 
 export default ProjetoLog;
