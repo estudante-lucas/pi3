@@ -2,13 +2,17 @@ import Coluna from "@models/Coluna";
 import Projeto from "@models/Projeto";
 import Quadro from "@models/Quadro";
 import Usuario from "@models/Usuario";
-import { Button, Card, Col, Dropdown, MenuProps, Row, Space, Typography } from "antd";
+import { Button, Card, Col, Dropdown, Input, List, MenuProps, Modal, Row, Select, Space, Typography } from "antd";
+import { Option } from "antd/es/mentions";
+import moment from "moment";
+import "moment/locale/pt-br";
 import React, { useEffect, useState } from "react";
 
 const { Title, Text } = Typography;
 
 interface ProjetoDTO extends Partial<Projeto> {
-	Usuario?: Partial<Usuario>;
+	usuarioResponsavel?: Partial<Usuario>;
+	criador?: Partial<Usuario>;
 }
 
 interface ColunaDTO extends Partial<Coluna> {
@@ -23,6 +27,8 @@ const KanbanBoard: React.FC = () => {
 	const [isKanbanLoading, setIsKanbanLoading] = useState(false);
 	const [quadros, setQuadros] = useState<QuadroDTO[]>([]);
 	const [quadroSelecionado, setQuadroSelecionado] = useState<QuadroDTO>();
+
+	moment.locale("pt-br");
 
 	useEffect(() => {
 		setIsKanbanLoading(true);
@@ -96,6 +102,11 @@ const KanbanBoard: React.FC = () => {
 		};
 	});
 
+	const [projetoSelecionado, setProjetoSelecionado] = useState<ProjetoDTO | null>(null);
+	const handleClickCard = (projeto: ProjetoDTO) => {
+		setProjetoSelecionado(projeto);
+	};
+
 	const colunasDoQuadro = quadroSelecionado?.Colunas.map((coluna, _, array) => (
 		<Col key={coluna.id} span={array.length < 5 ? 24 / array.length : 5}>
 			<Card
@@ -112,12 +123,24 @@ const KanbanBoard: React.FC = () => {
 						key={projeto.id}
 						draggable
 						onDragStart={(e) => handleDragStart(e, projeto.id!)}
+						onClick={() => handleClickCard(projeto)}
 						style={{
 							marginBottom: "8px",
 							backgroundColor: "#c4c4c4",
 						}}
 					>
-						<Text>{"Responsável: " + (projeto.Usuario?.nome || "Não atribuído")}</Text>
+						<Row>
+							<Text strong>Responsável:&nbsp;</Text>
+							<Text>{projeto.usuarioResponsavel?.nome || "Não atribuído"}</Text>
+						</Row>
+						<Row>
+							{coluna.nome != "A Fazer" && (
+								<>
+									<Text strong>Iniciado em:&nbsp;</Text>
+									<Text>{moment(projetoSelecionado?.criadoEm).format("DD/MM/YYYY")}</Text>
+								</>
+							)}
+						</Row>
 					</Card>
 				))}
 			</Card>
@@ -126,19 +149,117 @@ const KanbanBoard: React.FC = () => {
 
 	const quadroVazio = quadroSelecionado ? <Col>As colunas adicionadas ao quadro irão aparecer aqui</Col> : "";
 
+	// MODAL
+	const usuariosCadastrados = ["Lucas", "Maria", "Pedro"]; // Lista de usuários cadastrados
+	const [responsavel, setResponsavel] = useState("Lucas"); // Estado para armazenar o responsável
+
+	const handleResponsavelChange = (value: string) => {
+		setResponsavel(value); // Atualiza o estado do responsável
+	};
+
+	const [comentario, setComentario] = useState("");
+	const [comentarios, setComentarios] = useState<any[]>([]);
+
+	const handleComentarioChange = (e: any) => {
+		setComentario(e.target.value);
+	};
+
+	const handleComentarioSubmit = () => {
+		if (comentario.trim() !== "") {
+			const commentBody = {
+				responsavel: "Lucas",
+				criadoEm: new Date(),
+				mensagem: comentario,
+			};
+
+			setComentarios([...comentarios, commentBody]);
+			setComentario("");
+		}
+	};
+
+	const [saveCommentButtonVisible, setSaveCommentButtonVisible] = useState(false);
+
+	const closeModal = () => {
+		setComentario("");
+		setComentarios([]);
+		setProjetoSelecionado(null);
+	};
 	return (
-		<Space direction="vertical" style={{ width: "100%" }}>
-			<Row>
-				<Dropdown menu={{ items, onClick, selectable: true }}>
-					<Button>
-						<Space>{quadroSelecionado?.nome || "Selecione um quadro"}</Space>
-					</Button>
-				</Dropdown>
-			</Row>
-			<Row gutter={16} wrap={false} style={{ overflow: "scroll" }}>
-				{colunasDoQuadro?.length == 0 ? quadroVazio : colunasDoQuadro}
-			</Row>
-		</Space>
+		<>
+			<Space direction="vertical" style={{ width: "100%" }}>
+				<Row>
+					<Dropdown menu={{ items, onClick, selectable: true }}>
+						<Button>
+							<Space>{quadroSelecionado?.nome || "Selecione um quadro"}</Space>
+						</Button>
+					</Dropdown>
+				</Row>
+				<Row gutter={16} wrap={false} style={{ overflow: "scroll" }}>
+					{colunasDoQuadro?.length == 0 ? quadroVazio : colunasDoQuadro}
+				</Row>
+			</Space>
+			<Modal centered width={"60vw"} open={!!projetoSelecionado} onCancel={closeModal} footer style={{ backgroundColor: "#000000" }}>
+				<Row gutter={[16, 16]}>
+					<Col span={16}>
+						<Card style={{ border: "none" }}>
+							<Title level={3}>{projetoSelecionado?.nome}</Title>
+							<Title level={5}>Descrição</Title>
+							<Input.TextArea
+								style={{ border: "none", padding: 0, boxShadow: "none" }}
+								value={projetoSelecionado?.descricao || ""}
+								placeholder="Adicionar descrição..."
+								onChange={(e) => {
+									const value = e.target.value;
+									setProjetoSelecionado({ ...projetoSelecionado, descricao: value });
+								}}
+								autoSize={{ minRows: 3, maxRows: 12 }}
+							/>
+						</Card>
+					</Col>
+					<Col span={8}>
+						<Card style={{ border: "none" }}>
+							<Title level={5}>Responsável</Title>
+							<Select value={responsavel} onChange={handleResponsavelChange} bordered={false} showArrow={false} style={{ display: "block" }}>
+								{usuariosCadastrados.map((usuario) => (
+									<Option key={usuario} value={usuario}>
+										{usuario}
+									</Option>
+								))}
+							</Select>
+							<Title level={5}>Criador</Title>
+							<p style={{ margin: 0, paddingLeft: 11 }}>{projetoSelecionado?.criador?.nome}</p>
+							<Title level={5}>Data Criação</Title>
+							<p style={{ margin: 0, paddingLeft: 11 }}>{moment(projetoSelecionado?.criadoEm).format("DD/MM/YYYY")}</p>
+						</Card>
+					</Col>
+				</Row>
+				<Row gutter={[16, 16]}>
+					<Col span={16}>
+						<Card style={{ border: "none" }}>
+							<h4>Comentários</h4>
+							<Input.TextArea value={comentario} onChange={handleComentarioChange} onFocus={() => setSaveCommentButtonVisible(true)} placeholder="Escreva um comentário..." autoSize={{ minRows: 1, maxRows: 6 }} />
+							{saveCommentButtonVisible && (
+								<Space>
+									<Button type="primary" style={{ marginTop: "11px" }} onClick={handleComentarioSubmit}>
+										Adicionar Comentário
+									</Button>
+									<Button
+										style={{ marginTop: "11px" }}
+										onClick={() => {
+											setSaveCommentButtonVisible(false);
+											setComentario("");
+										}}
+									>
+										Cancelar
+									</Button>
+								</Space>
+							)}
+							<List dataSource={comentarios} renderItem={(item) => <List.Item.Meta title={`${item.responsavel} - ${moment(item.criadoEm).format("DD [de] MMMM, YYYY [às] HH:mm")}`}>{item.mensagem}</List.Item.Meta>} />
+						</Card>
+					</Col>
+				</Row>
+			</Modal>
+		</>
 	);
 };
 

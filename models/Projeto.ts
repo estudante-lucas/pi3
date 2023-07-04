@@ -89,7 +89,7 @@ Projeto.init(
 Coluna.hasMany(Projeto, { foreignKey: "coluna" });
 Projeto.belongsTo(Coluna, { as: "colunaId", foreignKey: "coluna" });
 
-Projeto.belongsTo(Usuario, { foreignKey: "responsavel" });
+Projeto.belongsTo(Usuario, { as: "usuarioResponsavel", foreignKey: "responsavel" });
 Projeto.belongsTo(Usuario, { as: "atualizador", foreignKey: "atualizadoPor" });
 Projeto.belongsTo(Usuario, { as: "criador", foreignKey: "criadoPor" });
 

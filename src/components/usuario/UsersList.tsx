@@ -1,3 +1,4 @@
+import Usuario from "@models/Usuario";
 import { Button, Col, Row, Skeleton, Table } from "antd";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -6,7 +7,7 @@ const UsersList: React.FC = () => {
 	const router = useRouter();
 
 	const [loading, setLoading] = useState(false);
-	const [users, setUsers] = useState<User[]>([]);
+	const [users, setUsers] = useState<Usuario[]>([]);
 
 	useEffect(() => {
 		setLoading(true);
@@ -17,7 +18,7 @@ const UsersList: React.FC = () => {
 			.finally(() => setLoading(false));
 	}, []);
 
-	const onRow = (user: User) => {
+	const onRow = (user: Usuario) => {
 		router.push(`/cadastros/usuario/${user.id}`);
 	};
 

@@ -1,4 +1,4 @@
-import { ContainerOutlined, DashboardOutlined, TableOutlined, UserOutlined } from "@ant-design/icons";
+import { BarChartOutlined, ContainerOutlined, DashboardOutlined, TableOutlined, UserOutlined } from "@ant-design/icons";
 import { Layout, Menu } from "antd";
 import { ItemType, MenuItemType } from "antd/es/menu/hooks/useItems";
 import { useRouter } from "next/navigation";
@@ -43,6 +43,14 @@ const SideMenu: React.FC<SideMenuProps> = ({ selected }) => {
 					},
 				},
 			],
+		},
+		{
+			key: "relatorios",
+			icon: <BarChartOutlined />,
+			label: "Relatórios",
+			onClick: () => {
+				router.push("/relatorios");
+			},
 		},
 	];
 

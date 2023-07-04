@@ -17,7 +17,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'tarefas',
+          model: 'projetos',
           key: 'id'
         }
       },
@@ -49,36 +49,6 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true
       }
-    });
-
-    await queryInterface.addConstraint('comentarios', {
-      type: 'foreign key',
-      fields: ['criado_por'],
-      references: {
-        table: 'usuarios',
-        field: 'id'
-      },
-      name: 'comentario_criado_por_fk_usuario_id'
-    });
-
-    await queryInterface.addConstraint('comentarios', {
-      type: 'foreign key',
-      fields: ['atualizado_por'],
-      references: {
-        table: 'usuarios',
-        field: 'id'
-      },
-      name: 'comentario_atualizado_por_fk_usuario_id'
-    });
-
-    await queryInterface.addConstraint('comentarios', {
-      type: 'foreign key',
-      fields: ['tarefa'],
-      references: {
-        table: 'tarefas',
-        field: 'id'
-      },
-      name: 'comentario_tarefa_fk_tarefa_id'
     });
   },
 

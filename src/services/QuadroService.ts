@@ -1,6 +1,5 @@
 import Coluna from "@models/Coluna";
 import Projeto from "@models/Projeto";
-import Usuario from "@models/Usuario";
 import Quadro from "../../models/Quadro";
 
 const criarQuadro = async (dados: Partial<Quadro>): Promise<Quadro> => {
@@ -46,7 +45,7 @@ const excluirQuadro = async (id: number): Promise<void> => {
 
 const obterTodosQuadros = async (): Promise<Quadro[]> => {
 	try {
-		return await Quadro.findAll({ where: { apagadoEm: null }, include: [{ model: Coluna, include: [{ model: Projeto, include: [Usuario] }] }] });
+		return await Quadro.findAll({ where: { apagadoEm: null }, include: [{ model: Coluna, include: [{ model: Projeto, include: ["usuarioResponsavel", "criador"] }] }] });
 	} catch (error) {
 		console.error("Erro ao obter todos os quadros:", error);
 		throw new Error("Erro ao obter todos os quadros");
