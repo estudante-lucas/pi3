@@ -201,14 +201,26 @@ const KanbanBoard: React.FC = () => {
 		setProjetoSelecionado(tempProjeto);
 	};
 
+	const handleEtapaProjetoSelecionado = (colunaId: string) => {
+		const tempProjeto = { ...projetoSelecionado };
+		tempProjeto.coluna = Number(colunaId);
+
+		setProjetoSelecionado(tempProjeto);
+	};
+
 	const adicionarProjeto = () => {
 		const novoProjeto: ProjetoDTO = {
 			criador: {
 				nome: "Lucas",
 			},
+			coluna: 1,
 		};
 
 		setProjetoSelecionado(novoProjeto);
+	};
+
+	const getNomeColuna = (colunaId?: number) => {
+		return quadroSelecionado?.Colunas.find((coluna) => coluna.id === colunaId)?.nome || "";
 	};
 
 	return (
@@ -240,7 +252,7 @@ const KanbanBoard: React.FC = () => {
 					</Row>
 				)}
 			</Space>
-			<Modal centered width={"60vw"} open={!!projetoSelecionado} onCancel={closeModal} footer style={{ backgroundColor: "#000000" }}>
+			<Modal centered width={"60vw"} open={!!projetoSelecionado} onCancel={closeModal} footer>
 				<Row gutter={[16, 16]}>
 					<Col span={16}>
 						<Card style={{ border: "none" }}>
@@ -261,8 +273,16 @@ const KanbanBoard: React.FC = () => {
 					</Col>
 					<Col span={8}>
 						<Card style={{ border: "none" }}>
+							<Title level={5}>Etapa</Title>
+							<Select value={getNomeColuna(projetoSelecionado?.coluna)} onChange={handleEtapaProjetoSelecionado} bordered={false} showArrow={false} style={{ display: "block", backgroundColor: "#f4f4f4" }}>
+								{quadroSelecionado?.Colunas.map((coluna) => (
+									<Option key={`${coluna.id}`} value={`${coluna.id}`}>
+										{coluna.nome}
+									</Option>
+								))}
+							</Select>
 							<Title level={5}>Responsável</Title>
-							<Select value={responsavel} onChange={handleResponsavelChange} bordered={false} showArrow={false} style={{ display: "block" }}>
+							<Select value={responsavel} onChange={handleResponsavelChange} bordered={false} showArrow={false} style={{ display: "block", backgroundColor: "#f4f4f4" }}>
 								{usuariosCadastrados.map((usuario) => (
 									<Option key={usuario} value={usuario}>
 										{usuario}
