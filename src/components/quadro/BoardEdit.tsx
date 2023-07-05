@@ -1,3 +1,4 @@
+import Quadro from "@models/Quadro";
 import { Button, Form, Input, message } from "antd";
 import React, { useEffect, useState } from "react";
 import Loading from "../Loading";
@@ -8,7 +9,7 @@ export interface BoardEditProps {
 
 const BoardEdit: React.FC<BoardEditProps> = ({ boardId }) => {
 	const [isLoading, setIsLoading] = useState(false);
-	const [board, setBoard] = useState<Board | null>(null);
+	const [board, setBoard] = useState<Quadro | null>(null);
 
 	useEffect(() => {
 		fetchBoard()
@@ -22,7 +23,7 @@ const BoardEdit: React.FC<BoardEditProps> = ({ boardId }) => {
 
 	const fetchBoard = async () => {
 		const response = await fetch(`/api/cadastros/quadro/${boardId}`);
-		const data: Board = await response.json();
+		const data: Quadro = await response.json();
 		return data;
 	};
 
@@ -66,8 +67,8 @@ const BoardEdit: React.FC<BoardEditProps> = ({ boardId }) => {
 			<h1>Editar Quadro</h1>
 
 			<Form onFinish={handleSubmit} initialValues={board} layout="vertical">
-				<Form.Item label="Nome" name="name" rules={[{ required: true, message: "Por favor, insira o nome do quadro." }]}>
-					<Input value={board.name} />
+				<Form.Item label="Nome" name="nome" rules={[{ required: true, message: "Por favor, insira o nome do quadro." }]}>
+					<Input value={board.nome} />
 				</Form.Item>
 
 				<Form.Item>

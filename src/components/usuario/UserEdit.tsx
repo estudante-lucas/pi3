@@ -1,3 +1,4 @@
+import Usuario from "@models/Usuario";
 import { Button, Form, Input, message } from "antd";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -9,7 +10,7 @@ export interface UserEditProps {
 
 const UserEdit: React.FC<UserEditProps> = ({ userId }) => {
 	const router = useRouter();
-	const [user, setUser] = useState<User | null>(null);
+	const [user, setUser] = useState<Usuario | null>(null);
 
 	useEffect(() => {
 		// Função para buscar informações do usuário por ID na API
@@ -27,7 +28,7 @@ const UserEdit: React.FC<UserEditProps> = ({ userId }) => {
 	}, [userId]);
 
 	const handleSubmit = (values: any) => {
-		message.success("Usuário salvo com sucesso")
+		message.success("Usuário salvo com sucesso");
 		router.push("/cadastros/usuarios");
 	};
 
@@ -39,8 +40,8 @@ const UserEdit: React.FC<UserEditProps> = ({ userId }) => {
 		<div>
 			<h1>Editar Usuário</h1>
 			<Form onFinish={handleSubmit} initialValues={user}>
-				<Form.Item label="Nome" name="name" rules={[{ required: true, message: "Por favor, insira o nome" }]}>
-					<Input value={user.name} />
+				<Form.Item label="Nome" name="nome" rules={[{ required: true, message: "Por favor, insira o nome" }]}>
+					<Input value={user.nome} />
 				</Form.Item>
 				<Form.Item
 					label="E-mail"
