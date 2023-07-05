@@ -34,7 +34,10 @@ const KanbanBoard: React.FC = () => {
 		setIsKanbanLoading(true);
 		fetch("/api/cadastros/quadros")
 			.then((response) => response.json())
-			.then((data) => setQuadros(data))
+			.then((data) => {
+				if (data[0]) setQuadroSelecionado(data[0]);
+				setQuadros(data);
+			})
 			.catch((error) => console.error("Erro ao obter lista de usuários:", error))
 			.finally(() => setIsKanbanLoading(false));
 	}, []);
@@ -107,10 +110,14 @@ const KanbanBoard: React.FC = () => {
 		setProjetoSelecionado(projeto);
 	};
 
-	const colunasDoQuadro = quadroSelecionado?.Colunas.map((coluna, _, array) => (
+	const colunasDoQuadro = quadroSelecionado?.Colunas.sort((a, b) => a.posicao! - b.posicao!).map((coluna, _, array) => (
 		<Col key={coluna.id} span={array.length < 5 ? 24 / array.length : 5}>
 			<Card
-				title={<Title level={4}>{coluna.nome}</Title>}
+				title={
+					<Title ellipsis title={coluna.nome} level={4}>
+						{coluna.nome}
+					</Title>
+				}
 				style={{ marginBottom: "16px", height: "88vh" }}
 				headStyle={{ backgroundColor: "#e4e4e4" }}
 				bodyStyle={{ minHeight: "79vh", padding: "8px", backgroundColor: "#e4e4e4" }}

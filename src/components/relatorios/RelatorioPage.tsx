@@ -1,10 +1,10 @@
 import ProjetoLog from "@models/ProjetoLog";
 import Usuario from "@models/Usuario";
-import { Divider, Select, Typography } from "antd";
-import { ChartData } from "chart.js/auto";
+import { Col, Divider, Row, Select, Tabs, TabsProps, Typography } from "antd";
+import { ChartData, ChartTypeRegistry } from "chart.js/auto";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import ChartComponent from "../Chart";
+import ChartComponent from "../ChartComponent";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -17,6 +17,8 @@ const RelatoriosPage = () => {
 	const [dadosGrafico, setDadosGrafico] = useState<ChartData>();
 
 	const [tab, setTab] = useState<"TempoMedioConclusaoEtapas" | "TempoTotalPorEtapa" | "CumprimentoPrazos">("TempoMedioConclusaoEtapas");
+	const [tipoGrafico, setTipoGrafico] = useState<keyof ChartTypeRegistry>("line");
+	const [colProps, setColProps] = useState({ span: 24, offset: 0 });
 
 	const handleFiltroUsuarioChange = (idUsuario: number) => {
 		setUsuarioFiltrado(idUsuario);
@@ -62,7 +64,7 @@ const RelatoriosPage = () => {
 					break;
 
 				default:
-					console.error("Não implementado para este caso!");
+					console.error(`Não implementado para ${tab}!`);
 					break;
 			}
 		}
@@ -103,7 +105,8 @@ const RelatoriosPage = () => {
 			});
 		});
 
-		console.log(mediaPorEtapa);
+		// Não mostrar a última coluna no gráfico
+		colunas.pop();
 
 		if (logs) {
 			const dados = {
@@ -117,45 +120,156 @@ const RelatoriosPage = () => {
 				],
 			};
 
+			setColProps({ span: 24, offset: 0 });
+
+			setTipoGrafico("line");
 			setDadosGrafico(dados);
 		}
 	};
 
-	const calcularTempoTotalPorEtapa = () => {};
+	const calcularTempoTotalPorEtapa = () => {
+		const colunas = ["A Fazer", "Em Progresso", "Em Revisão", "Pronto para Teste", "Aguardando Aprovação", "Concluído"];
+		const mediaPorEtapa: any = {};
 
-	const calcularCumprimentoPrazos = () => {};
+		const projetos = logs.map((log) => log.projetoId).filter(onlyUnique);
 
-	const averageTimeData = {
-		labels: ["A Fazer", "Em Progresso", "Em Revisão", "Pronto para Teste", "Aguardando Aprovação", "Concluído"],
-		datasets: [
-			{
-				label: "Tempo médio de conclusão (dias)",
-				data: [5, 7, 10, 8, 12, 15],
-				backgroundColor: "blue",
-			},
-		],
+		projetos.forEach((projeto) => {
+			const logsPorProjeto = logs.filter((log) => log.projetoId == projeto);
+			colunas.forEach((coluna, index) => {
+				// Faz nada no último elemento
+				if (colunas.length === index + 1) {
+					return;
+				}
+
+				const colunaAtual = logsPorProjeto.find((log) => log.coluna === coluna);
+				const proximaColuna = logsPorProjeto.find((log) => log.coluna === colunas[index + 1]);
+
+				const dataInicial = moment(colunaAtual?.criadoEm);
+				const dataFinal = moment(proximaColuna?.criadoEm);
+
+				if (!mediaPorEtapa[coluna]) {
+					mediaPorEtapa[coluna] = {};
+					mediaPorEtapa[coluna].dias = dataFinal.diff(dataInicial, "days");
+					mediaPorEtapa[coluna].contagem = 1;
+				} else {
+					mediaPorEtapa[coluna].dias += dataFinal.diff(dataInicial, "days");
+					mediaPorEtapa[coluna].contagem += 1;
+				}
+			});
+		});
+
+		// Não mostrar a última coluna no gráfico
+		colunas.pop();
+
+		if (logs) {
+			const dados = {
+				labels: colunas,
+				datasets: [
+					{
+						label: "Tempo total (dias)",
+						data: colunas.map((coluna) => mediaPorEtapa[coluna]?.dias),
+						backgroundColor: "blue",
+					},
+					{
+						label: `Projetos finazalidos ${mediaPorEtapa["Aguardando Aprovação"]?.contagem || 0}`,
+						data: [],
+						backgroundColor: "grey",
+					},
+				],
+			};
+
+			setColProps({ span: 24, offset: 0 });
+
+			setTipoGrafico("line");
+			setDadosGrafico(dados);
+		}
 	};
 
-	return (
-		<div>
-			<div style={{ padding: "24px" }}>
-				<Title level={2}>Relatórios</Title>
-				<Divider />
+	const calcularCumprimentoPrazos = () => {
+		if (!usuarioFiltrado) return;
 
-				<Select style={{ width: 200, marginBottom: 16 }} placeholder="Filtrar por usuário" value={usuarioFiltrado?.id} onChange={handleFiltroUsuarioChange}>
+		const projetos = Math.floor(Math.random() * (30 - 20 + 1)) + 20;
+		const prazo = 48;
+
+		const data = {
+			dentroDoPrazo: 0,
+			foraDoPrazo: 0,
+		};
+
+		for (let i = 0; i < projetos; i++) {
+			const numero = Math.floor(Math.random() * (60 - 40 + 1)) + 40;
+
+			if (numero > prazo) {
+				data.foraDoPrazo += 1;
+			} else {
+				data.dentroDoPrazo += 1;
+			}
+		}
+
+		const dados = {
+			labels: ["Dentro do prazo", "Fora do prazo"],
+			datasets: [
+				{
+					data: [data.dentroDoPrazo, data.foraDoPrazo],
+					backgroundColor: ["green", "grey"],
+					rotation: 180,
+				},
+			],
+		};
+
+		setColProps({ span: 9, offset: 7 });
+
+		setTipoGrafico("pie");
+		setDadosGrafico(dados);
+	};
+
+	const onChangeTab = (key: any) => {
+		setTab(key);
+	};
+
+	const items: TabsProps["items"] = [
+		{
+			key: "TempoMedioConclusaoEtapas",
+			label: "Tempo médio de conclusão por etapa",
+		},
+		{
+			key: "TempoTotalPorEtapa",
+			label: "Tempo total por etapa",
+		},
+		{
+			key: "CumprimentoPrazos",
+			label: "Cumprimento de Prazos",
+		},
+	];
+
+	return (
+		<>
+			<Row>
+				<Col span={24}>
+					<Title level={2}>Relatórios</Title>
+					<Divider />
+				</Col>
+			</Row>
+			<Row>
+				<Select style={{ width: 200, marginBottom: 16 }} placeholder="Filtrar por usuário" value={usuarioFiltrado} onChange={handleFiltroUsuarioChange}>
 					{usuarios.map((usuario) => (
 						<Option key={usuario.id} value={usuario.id}>
 							{usuario.nome}
 						</Option>
 					))}
 				</Select>
-
-				<div>
-					<h1>Tempo médio de conclusão das etapas</h1>
-					<ChartComponent data={dadosGrafico} type="line" width="100px" height="100px" />
-				</div>
-			</div>
-		</div>
+			</Row>
+			<Row gutter={16}>
+				<Col span={24}>
+					<Tabs defaultActiveKey="1" items={items} onChange={onChangeTab} />
+				</Col>
+			</Row>
+			<Row align="middle" gutter={16}>
+				<Col span={colProps.span} offset={colProps.offset}>
+					<ChartComponent data={dadosGrafico} type={tipoGrafico} width="100px" height="100px" />
+				</Col>
+			</Row>
+		</>
 	);
 };
 
