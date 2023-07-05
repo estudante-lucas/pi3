@@ -2,7 +2,7 @@ import Coluna from "@models/Coluna";
 import Projeto from "@models/Projeto";
 import Quadro from "@models/Quadro";
 import Usuario from "@models/Usuario";
-import { Button, Card, Col, Dropdown, Input, List, MenuProps, Modal, Row, Select, Space, Typography } from "antd";
+import { Button, Card, Col, Dropdown, Empty, Input, List, MenuProps, Modal, Row, Select, Space, Typography } from "antd";
 import { Option } from "antd/es/mentions";
 import moment from "moment";
 import "moment/locale/pt-br";
@@ -191,25 +191,61 @@ const KanbanBoard: React.FC = () => {
 		setComentarios([]);
 		setProjetoSelecionado(null);
 	};
+
+	const handleTituloProjetoSelecionado = (e: any) => {
+		const tempProjeto = { ...projetoSelecionado };
+
+		const value = e.target.value;
+		tempProjeto.nome = value;
+
+		setProjetoSelecionado(tempProjeto);
+	};
+
+	const adicionarProjeto = () => {
+		const novoProjeto: ProjetoDTO = {
+			criador: {
+				nome: "Lucas",
+			},
+		};
+
+		setProjetoSelecionado(novoProjeto);
+	};
+
 	return (
 		<>
 			<Space direction="vertical" style={{ width: "100%" }}>
 				<Row>
-					<Dropdown menu={{ items, onClick, selectable: true }}>
-						<Button>
-							<Space>{quadroSelecionado?.nome || "Selecione um quadro"}</Space>
+					<Col span={4}>
+						<Dropdown menu={{ items, onClick, selectable: true }}>
+							<Button>
+								<Space>{quadroSelecionado?.nome || "Selecione um quadro"}</Space>
+							</Button>
+						</Dropdown>
+					</Col>
+					<Col>
+						<Button type="primary" onClick={adicionarProjeto}>
+							<Space>Adicionar Projeto</Space>
 						</Button>
-					</Dropdown>
+					</Col>
 				</Row>
-				<Row gutter={16} wrap={false} style={{ overflow: "scroll" }}>
-					{colunasDoQuadro?.length == 0 ? quadroVazio : colunasDoQuadro}
-				</Row>
+				{quadroSelecionado?.Colunas.length! > 0 ? (
+					<Row gutter={16} wrap={false} style={{ overflow: "scroll" }}>
+						{colunasDoQuadro?.length == 0 ? quadroVazio : colunasDoQuadro}
+					</Row>
+				) : (
+					<Row align={"middle"} style={{ height: "80vh" }}>
+						<Col span={12} offset={6}>
+							<Empty description={"As colunas adicionadas ao quadro irão aparecer aqui"} />
+						</Col>
+					</Row>
+				)}
 			</Space>
 			<Modal centered width={"60vw"} open={!!projetoSelecionado} onCancel={closeModal} footer style={{ backgroundColor: "#000000" }}>
 				<Row gutter={[16, 16]}>
 					<Col span={16}>
 						<Card style={{ border: "none" }}>
-							<Title level={3}>{projetoSelecionado?.nome}</Title>
+							<Title level={5}>Título</Title>
+							<Input value={projetoSelecionado?.nome} style={{ fontSize: "2em", wordWrap: "break-word", border: "none", padding: 0 }} onChange={handleTituloProjetoSelecionado} placeholder="Adicione um título..." />
 							<Title level={5}>Descrição</Title>
 							<Input.TextArea
 								style={{ border: "none", padding: 0, boxShadow: "none" }}
