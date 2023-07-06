@@ -5,11 +5,17 @@ const path = require("path");
 const Sequelize = require("sequelize");
 const process = require("process");
 const basename = path.basename(__filename);
-const env = "development";
-const config = require("../config/config")[env];
 const db = {};
 
-const sequelize = new Sequelize(process.env.POSTGRES_DATABASE, process.env.POSTGRES_USER, process.env.POSTGRES_PASSWORD, config);
+const sequelize = new Sequelize(process.env.PI3_DATABASE, process.env.PI3_USER, process.env.PI3_PASSWORD, {
+	host: process.env.PI3_HOST,
+	dialect: "postgres",
+	dialectOptions: {
+		ssl: {
+			require: true,
+		},
+	},
+});
 
 fs.readdirSync(__dirname)
 	.filter((file) => {
