@@ -16,11 +16,11 @@ Antes de iniciar, certifique-se de ter o seguinte instalado em sua máquina:
 3. Abra o arquivo `.env` e atualize as seguintes variáveis de ambiente com as configurações do seu banco de dados:
 
 ```
-DB_HOST=localhost
-DB_USER=seu_usuario
-DB_PASSWORD=sua_senha
-DB_NAME=nome_do_banco_de_dados
-DB_DIALECT=mysql
+PI3_URL
+PI3_USER
+PI3_HOST
+PI3_PASSWORD
+PI3_DATABASE
 ```
 
 Certifique-se de fornecer o nome de usuário, senha e nome do banco de dados corretos.
