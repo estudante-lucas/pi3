@@ -10,6 +10,11 @@ const db = {};
 
 const sequelize = new Sequelize(process.env.PI3_URL, {
 	dialectModule: pg,
+	dialectOptions: {
+		ssl: {
+			require: true,
+		},
+	},
 });
 
 fs.readdirSync(__dirname)
