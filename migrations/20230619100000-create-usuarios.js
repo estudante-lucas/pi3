@@ -52,30 +52,6 @@ module.exports = {
         allowNull: true
       }
     });
-
-    await queryInterface.addConstraint('usuarios', {
-      type: 'foreign key',
-      fields: ['atualizado_por'],
-      references: {
-        table: 'usuarios',
-        field: 'id'
-      },
-      onDelete: 'RESTRICT',
-      onUpdate: 'RESTRICT',
-      name: 'usuario_fk_atualizado_por'
-    });
-
-    await queryInterface.addConstraint('usuarios', {
-      type: 'foreign key',
-      fields: ['criado_por'],
-      references: {
-        table: 'usuarios',
-        field: 'id'
-      },
-      onDelete: 'RESTRICT',
-      onUpdate: 'RESTRICT',
-      name: 'usuario_fk_criado_por'
-    });
   },
 
   down: async (queryInterface, Sequelize) => {
