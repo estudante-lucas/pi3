@@ -8,15 +8,8 @@ const pg = require("pg");
 const basename = path.basename(__filename);
 const db = {};
 
-const sequelize = new Sequelize(process.env.PI3_DATABASE, process.env.PI3_USER, process.env.PI3_PASSWORD, {
-	host: process.env.PI3_HOST,
-	dialect: "postgres",
+const sequelize = new Sequelize(process.env.PI3_URL, {
 	dialectModule: pg,
-	dialectOptions: {
-		ssl: {
-			require: true,
-		},
-	},
 });
 
 fs.readdirSync(__dirname)
